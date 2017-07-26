@@ -43,6 +43,20 @@ class MergeSort
   end
 end
 
+class InsertionSort
+  def sort(array, compare = lambda { |a, b| a <=> b })
+    (1..array.length - 1).each do |i|
+      item = array[i]
+      indexHole = i
+      while indexHole > 0 and compare.call(array[indexHole - 1], item) > 0
+        array[indexHole] = array[indexHole - 1]
+        indexHole = indexHole - 1
+      end
+      array[indexHole] = item
+    end
+  end
+end
+
 # This class courtesy of: http://www.growingwiththeweb.com/2014/05/counting-sort.html
 class CountingSort
   # Sorts an array using counting sort.
@@ -70,7 +84,7 @@ end
 # This class courtesy of: http://www.growingwiththeweb.com/2015/06/bucket-sort.html
 class BucketSort
     # Sorts an array using bucket sort.
-  def sort(array, bucket_size = 5)
+  def sort(array, bucket_size = 10, sort_type = :merge)
     if array.empty?
       return
     end
@@ -91,13 +105,23 @@ class BucketSort
       buckets[((array[i] - min_value) / bucket_size).floor].push(array[i])
     end
 
-    # Sort buckets and place back into input array
-    merge = MergeSort.new
     array.clear
-    (0..buckets.length - 1).each do |i|
-      merge.sort(buckets[i], 0, buckets[i].length - 1)
-      buckets[i].each do |value|
-        array.push(value)
+    # Sort buckets and place back into input array
+    if sort_type == :insertion
+      sort = InsertionSort.new
+      (0..buckets.length - 1).each do |i|
+        sort.sort(buckets[i])
+        buckets[i].each do |value|
+          array.push(value)
+        end
+      end
+    else
+      sort = MergeSort.new
+      (0..buckets.length - 1).each do |i|
+        sort.sort(buckets[i], 0, buckets[i].length - 1)
+        buckets[i].each do |value|
+          array.push(value)
+        end
       end
     end
   end
