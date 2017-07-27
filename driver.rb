@@ -8,6 +8,7 @@ def generate_array(n, range, random = true)
     n.times { array.push(rand(0..range)) }
   else
     n.times { |val| array.push(val) }
+    array.reverse!
   end
   array
 end
@@ -82,8 +83,8 @@ end
 # Tests
 # Speed tests for bucket sort
 # can run tests for increasing n, k, n and k, passed in as options
-def bucket_tests(n, range, increments, options = { random: false })
-  k = range
+def bucket_tests(n, k, range, increments, options = { random: false })
+  #k = range
   bucket = BucketSort.new
 
   sort_type = if options[:sort_type]
@@ -95,7 +96,7 @@ def bucket_tests(n, range, increments, options = { random: false })
   increments.times do
     timed_metric = Hitimes::TimedMetric.new('Operation')
     5.times do
-      arr = generate_array n, k, options[:random]
+      arr = generate_array n, range, options[:random]
       timed_metric.start
       bucket.sort(arr, k, sort_type)
       timed_metric.stop
@@ -122,7 +123,7 @@ def bucket_tests(n, range, increments, options = { random: false })
       k *= 10
     else
       n *= 2
-      k = n
+      k *= 2
     end
 
   end
@@ -134,7 +135,7 @@ def counting_tests(n, increments, options = {})
   increments.times do
     timed_metric = Hitimes::TimedMetric.new('Operation')
     5.times do
-      arr = generate_array n, n, true
+      arr = generate_array n, n, options[:random]
       arr << 10_000_000_000 if options[:break]
       timed_metric.start
       counting.sort(arr)
@@ -220,16 +221,18 @@ def sort_compare(n, increments, options={})
   end
 end
 # ======================EMPIRICAL TESTS============================================
-#empirical_tests 1000
+empirical_tests 1000
 # ======================BUCKET SORT TESTS============================================
 # Neat Discovery.  As range and k exceeded n, we started to get stronger.
 # probably making sure we have less merge sorts in each bucket due to high bucket count
 # this steadied out with higher values.
 
-puts "=============BUCKET SORT INCREASING K======================"
-puts "n = 25,000\nk = 10 to start"
-# small k, increases by factor of 10. Values are also in range k.
-bucket_tests(25_000, 10, 17, k: true)
+#puts "=============BUCKET SORT INCREASING K======================"
+# puts "n = 25,000\nk = 10 to start"
+#small k, increases by factor of 10. Values are also in range k.
+# bucket_tests(5_000, 1_000, nil, 8, random: false)
+# bucket_tests(5_000, 1_000, 25_000, 8)
+# bucket_tests(50_000, 1_000, 50_000, 10, k: true)
 # puts "=============BUCKET SORT INCREASING N======================"
 # puts "n = 1,000 to start\nk = 100,000"
 # # small n, increases by factor of 2
@@ -270,16 +273,18 @@ bucket_tests(25_000, 10, 17, k: true)
 # # ======================COUNTING SORT TESTS============================================
 # puts "=============Counting SORT INCREASING N======================"
 # puts "n = 25,000 to start, k = n on each pass"
-# counting_tests 25_000, 10
+# counting_tests(50_000, 10, random: false)
+# counting_tests(50_000, 10)
 
 # puts "=============Counting SORT INCREASING N======================"
 # puts "n = 25,000 to start, k = n on each pass"
 # puts "tags an arbitrarily high value to k to an auxiliary array with lots of empties"
-# counting_tests(25_000, 10, break: true)
+# counting_tests(10_000, 10, break: true)
 
 # ======================RADIX SORT TESTS============================================
 # puts "=============Radix SORT INCREASING N======================"
 # puts "n = 10,000 to start, k = n on each pass"
+# radix_tests 10_000, 10, random: false
 # radix_tests 10_000, 10
 
 # puts "=============Radix SORT INCREASING N======================"
@@ -288,4 +293,4 @@ bucket_tests(25_000, 10, 17, k: true)
 # radix_tests(10_000, 10, break: true)
 #
 # sort_compare(1_000, 8, merge_on: true)
-# sort_compare(25_000, 10, merge_on: false)
+#sort_compare(25_000, 10, merge_on: false)
